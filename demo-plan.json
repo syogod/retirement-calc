@@ -1,0 +1,168 @@
+{
+  "personal": {
+    "name": "Alex",
+    "currentAge": 45,
+    "retirementAge": 60,
+    "horizonAge": 90,
+    "currentYear": 2026,
+    "spouse": {
+      "name": "Jordan",
+      "currentAge": 43
+    }
+  },
+  "growth": {
+    "nominalReturn": 0.07,
+    "inflation": 0.03
+  },
+  "accounts": [
+    {
+      "id": "demo-brokerage",
+      "name": "Brokerage (Taxable)",
+      "type": "taxable",
+      "balance": 150000,
+      "annualContribution": 6000,
+      "taxableCostBasis": 90000
+    },
+    {
+      "id": "demo-401k",
+      "name": "401(k)",
+      "type": "tax-deferred",
+      "balance": 350000,
+      "annualContribution": 20000
+    },
+    {
+      "id": "demo-roth",
+      "name": "Roth IRA",
+      "type": "roth",
+      "balance": 80000,
+      "annualContribution": 7000,
+      "rothBasis": 50000
+    },
+    {
+      "id": "demo-cash",
+      "name": "Emergency Fund",
+      "type": "cash",
+      "balance": 20000,
+      "annualContribution": 0
+    },
+    {
+      "id": "demo-spouse-401k",
+      "name": "Jordan's 401(k)",
+      "type": "tax-deferred",
+      "ownerId": "spouse",
+      "balance": 180000,
+      "annualContribution": 15000
+    },
+    {
+      "id": "demo-mortgage",
+      "name": "Mortgage (Demo House)",
+      "type": "mortgage",
+      "balance": 250000,
+      "annualContribution": 0,
+      "mortgageInterestRate": 0.06,
+      "mortgageRemainingTermYears": 20,
+      "mortgageExtraMonthlyPayment": 300,
+      "mortgageEscrowMonthly": 350,
+      "mortgageSnowballToAccountId": "demo-401k"
+    },
+    {
+      "id": "demo-home",
+      "name": "Home",
+      "type": "home",
+      "balance": 450000,
+      "annualContribution": 0,
+      "homeAppreciationRate": 0.005,
+      "homeCostBasis": 300000,
+      "linkedMortgageAccountId": "demo-mortgage",
+      "homeSellAtAge": 80,
+      "homeSellingCostRate": 0.06,
+      "homeSaleTargetAccountId": "demo-cash"
+    }
+  ],
+  "spending": {
+    "monthlySpendExclMortgage": 5000,
+    "bridgeHealthInsuranceMonthly": 1200,
+    "medicareEligibilityAge": 65
+  },
+  "pensions": [
+    {
+      "id": "demo-fers",
+      "name": "Federal Pension (FERS-style)",
+      "type": "fers",
+      "high3Salary": 95000,
+      "yearsOfService": 20,
+      "annuityMultiplier": 0.01,
+      "startAge": 62
+    },
+    {
+      "id": "demo-fixed-pension",
+      "name": "Former Employer Pension",
+      "type": "fixed",
+      "monthlyBenefit": 800,
+      "startAge": 65
+    },
+    {
+      "id": "demo-spouse-pension",
+      "name": "Jordan's Pension",
+      "type": "fixed",
+      "ownerId": "spouse",
+      "monthlyBenefit": 500,
+      "startAge": 65
+    }
+  ],
+  "socialSecurity": [
+    {
+      "ownerId": "primary",
+      "monthlyBenefitAt62": 2200,
+      "monthlyBenefitAt67": 3100,
+      "monthlyBenefitAt70": 3900,
+      "claimingAge": 67,
+      "haircut": 1
+    },
+    {
+      "ownerId": "spouse",
+      "monthlyBenefitAt62": 1400,
+      "monthlyBenefitAt67": 2000,
+      "monthlyBenefitAt70": 2600,
+      "claimingAge": 67,
+      "haircut": 1
+    }
+  ],
+  "taxes": {
+    "stateRate": 0.05
+  },
+  "rmdSurplus": {
+    "strategy": "reinvest",
+    "targetAccountId": "demo-brokerage"
+  },
+  "oneTimeEvents": [
+    {
+      "id": "demo-inheritance",
+      "name": "Inheritance",
+      "age": 68,
+      "amount": 50000,
+      "targetAccountId": "demo-brokerage"
+    },
+    {
+      "id": "demo-roof",
+      "name": "New roof",
+      "age": 75,
+      "amount": -30000
+    },
+    {
+      "id": "demo-car",
+      "name": "New car",
+      "age": 65,
+      "amount": -25000,
+      "repeatEveryYears": 10
+    }
+  ],
+  "guardrails": {
+    "strategy": "guardrails",
+    "upperGuardrailPct": 0.2,
+    "cutPct": 0.1,
+    "lowerGuardrailPct": 0.2,
+    "raisePct": 0.1
+  },
+  "numSimulations": 1000
+}

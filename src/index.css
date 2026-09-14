@@ -1,0 +1,801 @@
+:root {
+  color-scheme: light dark;
+  font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  --bg: #f7f7f8;
+  --card-bg: #ffffff;
+  --border: #e0e0e3;
+  --text: #1a1a1e;
+  --text-muted: #6b6b73;
+  --accent: #2f6feb;
+  --danger: #c4362f;
+  --input-bg: #ffffff;
+
+  /* Chart tokens (validated categorical/status palette) */
+  --chart-surface: #fcfcfb;
+  --chart-text-primary: #0b0b0b;
+  --chart-text-secondary: #52514e;
+  --chart-muted: #898781;
+  --chart-grid: #e1e0d9;
+  --chart-baseline: #c3c2b7;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-critical: #d03b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16171b;
+    --card-bg: #1f2025;
+    --border: #33343a;
+    --text: #f0f0f2;
+    --text-muted: #a0a0a8;
+    --accent: #6ea0ff;
+    --danger: #ff6b63;
+    --input-bg: #2a2b31;
+
+    --chart-surface: #1a1a19;
+    --chart-text-primary: #ffffff;
+    --chart-text-secondary: #c3c2b7;
+    --chart-muted: #898781;
+    --chart-grid: #2c2c2a;
+    --chart-baseline: #383835;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+    --series-8: #e66767;
+    --status-good: #0ca30c;
+    --status-warning: #fab219;
+    --status-critical: #d03b3b;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  /* Wide enough that the Dashboard's results column (sidebar + 1fr) actually gets
+     room to breathe — this was sized for the single-column input form back before
+     charts/tables existed, and left most of a normal-width window empty. */
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.app-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.app h1 {
+  font-size: 28px;
+  margin: 0;
+}
+
+.app-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 46em;
+}
+
+.save-load-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.save-load-button {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text);
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.save-load-button:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
+}
+
+.save-load-error {
+  flex-basis: 100%;
+}
+
+.section-divider {
+  font-size: 20px;
+  margin: 32px 0 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.section-hint {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.chart-footnote {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.field-grid {
+  display: grid;
+  /* auto-fill (not auto-fit): keeps empty leftover tracks as blank space instead of
+     stretching a section with only 1-2 fields across the whole (now much wider) card. */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.field-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.social-security-person {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.social-security-person:first-of-type {
+  margin-top: 12px;
+  padding-top: 0;
+  border-top: none;
+}
+
+.social-security-person h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.field-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  padding: 0 8px;
+}
+
+.field-input-wrap input,
+.field input[type='text'],
+.field select {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+  padding: 8px 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+.field input[type='text'],
+.field select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  padding: 8px;
+}
+
+.field-input-wrap input:focus,
+.field input[type='text']:focus,
+.field select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.field-input-wrap input {
+  -moz-appearance: textfield;
+}
+
+.field-affix {
+  color: var(--text-muted);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.computed-note {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.computed-value {
+  padding: 8px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.account-row {
+  display: grid;
+  /* auto-fill, not auto-fit — see .field-grid's comment above. */
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.account-name {
+  min-width: 0;
+}
+
+.remove-button,
+.add-button {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text);
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.remove-button {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.remove-button:hover {
+  background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
+}
+
+.add-button {
+  margin-top: 12px;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.add-button:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
+}
+
+/* Results / charts */
+
+.results-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 12px 0 4px;
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-width: 140px;
+}
+
+.stat-tile-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.stat-tile-value {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.stat-tile--good .stat-tile-value {
+  color: var(--status-good);
+}
+
+.stat-tile--warning .stat-tile-value {
+  color: var(--status-warning);
+}
+
+.stat-tile--critical .stat-tile-value {
+  color: var(--status-critical);
+}
+
+.chart {
+  position: relative;
+  margin-top: 12px;
+}
+
+.chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--chart-surface);
+  border-radius: 6px;
+  touch-action: none;
+}
+
+.chart-gridline {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+
+.chart-baseline {
+  stroke: var(--chart-baseline);
+  stroke-width: 1;
+}
+
+.chart-crosshair {
+  stroke: var(--chart-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+}
+
+.chart-axis-label {
+  fill: var(--chart-muted);
+  font-size: 11px;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--chart-text-secondary);
+}
+
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.chart-legend-swatch--line {
+  border-radius: 5px;
+  height: 3px;
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: 8px;
+  transform: translateX(-50%);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 1;
+}
+
+.chart-tooltip-header {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.chart-tooltip-value {
+  margin-left: auto;
+  padding-left: 12px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.results-table-wrap {
+  margin-top: 12px;
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.results-table {
+  /* Size to content (so every column, including Status, gets the room its longest
+     value actually needs) but never shrink below the wrapper's width — the wrapper's
+     overflow: auto then supplies a horizontal scrollbar only when truly needed,
+     instead of the browser silently squeezing every column to fit. */
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.results-table th {
+  position: sticky;
+  top: 0;
+  background: var(--card-bg);
+  text-align: right;
+  padding: 8px 10px;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.results-table th:first-child,
+.results-table td:first-child {
+  text-align: left;
+}
+
+.results-table td {
+  text-align: right;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+.results-table tr:last-child td {
+  border-bottom: none;
+}
+
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.status-icon + .status-icon {
+  margin-left: 8px;
+}
+
+.status-icon--warning {
+  color: var(--status-warning);
+}
+
+.status-icon--critical {
+  color: var(--status-critical);
+}
+
+.status-icon--info {
+  color: var(--accent);
+}
+
+.run-simulation-button {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  background: var(--card-bg);
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.run-simulation-button:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
+}
+
+.run-simulation-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Tabs */
+
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.tab {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  padding: 10px 16px;
+  font-size: 15px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* Dashboard layout */
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-adjust {
+  position: sticky;
+  top: 16px;
+}
+
+@media (max-width: 860px) {
+  .dashboard-adjust {
+    position: static;
+  }
+}
+
+.dashboard-results {
+  min-width: 0;
+}
+
+.setup-layout .section-hint {
+  margin-bottom: 20px;
+}
+
+/* Expandable chart overlay */
+
+.expand-button {
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.expand-button:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
+  color: var(--text);
+}
+
+.chart-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  padding: 20px;
+  /* The grid itself never scrolls — each column manages its own overflow, and the
+     chart area is sized (via JS) to exactly fit what's left, so it never needs to. */
+  overflow: hidden;
+}
+
+@media (max-width: 860px) {
+  .chart-overlay {
+    /* Sliders + a full-size chart can't both fit one small screen — stack and let
+       the whole overlay scroll instead of trying to force-fit (mobile polish is
+       out of scope for this app anyway). */
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+}
+
+.chart-overlay-adjust {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.chart-overlay-main {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 860px) {
+  .chart-overlay-main {
+    display: block;
+  }
+}
+
+.chart-overlay-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.chart-overlay-header h2 {
+  margin: 0;
+}
+
+.chart-overlay-chart-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Clips any one-frame flash of the fallback height before the ResizeObserver's
+     first measurement lands. */
+  overflow: hidden;
+}
+
+.chart-overlay-chart-area .chart {
+  /* The fit calculation targets this whole area — any margin on the chart itself
+     would eat into that budget and get clipped by the overflow:hidden above. */
+  margin-top: 0;
+}
+
+@media (max-width: 860px) {
+  .chart-overlay-chart-area {
+    min-height: 320px;
+  }
+}
+
+/* Slider field */
+
+.slider-field {
+  margin-bottom: 20px;
+}
+
+.slider-field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.slider-field-header label {
+  color: var(--text);
+}
+
+.slider-field-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  padding: 2px 6px;
+}
+
+.slider-field-number {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  width: 64px;
+  padding: 4px 2px;
+}
+
+.slider-field-range {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+/* Report page */
+
+.report-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.report-summary {
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+@media print {
+  .app-header,
+  .tab-bar,
+  .report-actions {
+    display: none;
+  }
+
+  .card {
+    border: none;
+    padding: 0;
+    margin-bottom: 24px;
+    break-inside: avoid;
+  }
+
+  /* The scrollable, height-capped table box only makes sense on screen — printed,
+     every row should paginate across pages instead of being clipped to one box. */
+  .results-table-wrap {
+    max-height: none;
+    overflow: visible;
+    border: none;
+  }
+
+  .results-table th {
+    position: static;
+  }
+}
