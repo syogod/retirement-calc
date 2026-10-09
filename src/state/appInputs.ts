@@ -22,8 +22,12 @@ export interface AppInputs {
   numSimulations: number
 }
 
-function makeId(): string {
-  return crypto.randomUUID()
+/** `crypto.randomUUID` only exists in secure contexts (HTTPS or localhost), so it's
+ * missing when the app is served over plain HTTP on a LAN (e.g. from a NAS).
+ * `getRandomValues` works everywhere; ids only need to be unique, not RFC-shaped. */
+export function makeId(): string {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID()
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 /**

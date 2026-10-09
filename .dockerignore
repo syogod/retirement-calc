@@ -1,0 +1,12 @@
+# Allowlist: only what the build actually needs goes into the Docker build context.
+# This keeps real financial data (my-real-plan.json, retirement_model.xlsx, PLAN.md)
+# out of any image that gets pushed to a registry.
+*
+!index.html
+!package.json
+!package-lock.json
+!tsconfig*.json
+!vite.config.ts
+!public
+!src
+!nginx.conf

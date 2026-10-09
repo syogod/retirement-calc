@@ -1,0 +1,16 @@
+# For TrueNAS SCALE: Apps → Discover Apps → ⋮ → Install via YAML, paste this in.
+# Also works anywhere else with `docker compose up -d`.
+services:
+  retirementcalc:
+    image: ghcr.io/syogod/retirementcalc:latest
+    container_name: retirementcalc
+    ports:
+      - "30080:8080"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL

@@ -65,9 +65,10 @@ anyone's real finances.)*
 
 ## What it doesn't do
 
-- It's not hosted anywhere, and it's not trying to be — you run it yourself, and your
-  numbers stay on your machine. There's no login, no cloud save, and no undo: if you
-  close the tab without saving, unsaved edits are gone.
+- It's not a hosted service, and it's not trying to be — you run it yourself (on your
+  own computer, or on a home server like a NAS), and your numbers stay in your
+  browser. There's no login, no cloud save, and no undo: if you close the tab without
+  saving, unsaved edits are gone.
 - No side-by-side comparison of multiple scenarios at once — one plan at a time.
 - No rental property, long-term-care cost modeling, or life insurance.
 - No buying a new home after selling one, and no modeling more than one sale.
@@ -157,3 +158,36 @@ npm run lint    # run the linter
 Your data never leaves your machine: there's no database and nothing is uploaded
 anywhere. Use "Save to file" in the app to keep a copy of your plan, and "Load from
 file" to bring it back next time — closing the tab without saving loses your edits.
+
+## Running it on a home server (TrueNAS, Docker)
+
+If you'd rather open it from any device on your home network instead of running
+`npm run dev`, there's a ready-made Docker image. Every push to `main` builds and
+publishes it to `ghcr.io/syogod/retirementcalc:latest`.
+
+The server only hands your browser the app's files. All the math still runs in your
+browser, and your plan is never sent to the server or stored on it. Save/Load still
+reads and writes files on whatever computer you're using.
+
+### TrueNAS SCALE (24.10 or newer)
+
+1. Go to **Apps → Discover Apps**, open the **⋮** menu, and choose **Install via
+   YAML**.
+2. Name it `retirementcalc` and paste in the contents of [`compose.yaml`](./compose.yaml).
+3. Click **Save**, wait for it to show **Running**, then open
+   `http://<your-nas-ip>:30080`.
+
+To update to a newer version, open the app in TrueNAS and choose **Update** (or
+**Pull Image**, then restart it).
+
+There's no login, so keep this on your home network. Don't port-forward it to the
+internet. If you want to reach it while you're away, use a VPN back into your network.
+
+### Any other Docker host
+
+```bash
+docker compose up -d          # uses compose.yaml; then open http://localhost:30080
+# or build it yourself from source:
+docker build -t retirementcalc .
+docker run -d -p 30080:8080 retirementcalc
+```
