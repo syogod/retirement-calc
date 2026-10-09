@@ -1,6 +1,6 @@
 // @vitest-environment node
-import { describe, expect, it } from 'vitest'
-import { deserializeInputs, InvalidImportError, serializeInputs } from './persistence'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { deserializeInputs, InvalidImportError, loadServerPlan, serializeInputs, ServerPlanError } from './persistence'
 import { createDefaultInputs } from './appInputs'
 
 describe('serializeInputs / deserializeInputs', () => {
@@ -45,5 +45,32 @@ describe('serializeInputs / deserializeInputs', () => {
     delete incomplete.pensions
     expect(() => deserializeInputs(JSON.stringify(incomplete))).toThrow(InvalidImportError)
     expect(() => deserializeInputs(JSON.stringify(incomplete))).toThrow(/pensions/)
+  })
+})
+
+describe('loadServerPlan', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('returns null when nothing has been saved yet (404)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 404 })))
+    await expect(loadServerPlan()).resolves.toBeNull()
+  })
+
+  it('returns the saved plan', async () => {
+    const inputs = createDefaultInputs()
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(serializeInputs(inputs), { status: 200 })))
+    await expect(loadServerPlan()).resolves.toEqual(inputs)
+  })
+
+  it('rejects a corrupt saved file rather than silently starting blank', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{ truncated', { status: 200 })))
+    await expect(loadServerPlan()).rejects.toThrow(/couldn't be read/i)
+  })
+
+  it('rejects on a server error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 500 })))
+    await expect(loadServerPlan()).rejects.toThrow(ServerPlanError)
   })
 })

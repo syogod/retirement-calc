@@ -14,6 +14,7 @@ dist-ssr
 
 # Real financial data — never committed. demo-plan.json (fictional) is fine to commit.
 my-real-plan.json
+data/
 retirement_model.xlsx
 
 # Internal build log — kept locally, not part of the public repo.

@@ -1,11 +1,19 @@
 # For TrueNAS SCALE: Apps → Discover Apps → ⋮ → Install via YAML, paste this in.
 # Also works anywhere else with `docker compose up -d`.
+#
+# BEFORE INSTALLING: change the left side of the volume below to a dataset you've
+# created for this app (e.g. /mnt/<your-pool>/apps/retirementcalc). Your saved plan
+# is kept there as plan.json, so it survives restarts and updates.
 services:
   retirementcalc:
     image: ghcr.io/syogod/retirementcalc:latest
     container_name: retirementcalc
+    # TrueNAS's built-in "apps" user. The dataset above must be writable by it.
+    user: "568:568"
     ports:
       - "30080:8080"
+    volumes:
+      - /mnt/tank/apps/retirementcalc:/data
     restart: unless-stopped
     read_only: true
     tmpfs:

@@ -76,3 +76,48 @@ function migrateLegacyShapes(parsed: Record<string, unknown>): Record<string, un
   }
   return parsed
 }
+
+/** Where the server keeps the one saved plan (nginx in the Docker image, a Vite
+ * middleware under `npm run dev`). GET → 404 means nothing has been saved yet. */
+export const SERVER_PLAN_URL = '/api/plan'
+
+export class ServerPlanError extends Error {}
+
+/** The saved plan, or null if none has been saved yet. Throws `ServerPlanError` if
+ * the server can't be reached or the saved file is unreadable. */
+export async function loadServerPlan(): Promise<AppInputs | null> {
+  let response: Response
+  try {
+    response = await fetch(SERVER_PLAN_URL, { cache: 'no-store' })
+  } catch {
+    throw new ServerPlanError("Couldn't reach the server to load your saved plan.")
+  }
+  if (response.status === 404) return null
+  if (!response.ok) throw new ServerPlanError(`Couldn't load your saved plan (server error ${response.status}).`)
+
+  try {
+    return deserializeInputs(await response.text())
+  } catch (err) {
+    const reason = err instanceof InvalidImportError ? ` ${err.message}` : ''
+    throw new ServerPlanError(`Your saved plan couldn't be read.${reason}`)
+  }
+}
+
+/** Overwrites the one saved plan on the server. */
+export async function saveServerPlan(inputs: AppInputs): Promise<void> {
+  let response: Response
+  try {
+    response = await fetch(SERVER_PLAN_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: serializeInputs(inputs),
+    })
+  } catch {
+    throw new ServerPlanError("Couldn't reach the server — your plan was not saved.")
+  }
+  if (!response.ok) {
+    // Almost always a missing or read-only /data volume in the Docker setup.
+    const hint = response.status >= 500 ? " Check that the app's data folder is mounted and writable." : ''
+    throw new ServerPlanError(`Save failed (server error ${response.status}).${hint}`)
+  }
+}

@@ -40,7 +40,8 @@ anyone's real finances.)*
 - Gives you sliders to drag — retirement age, spending, claiming ages — and watch the
   whole plan update live.
 - Exports the year-by-year numbers to a CSV, and has a clean printable report page.
-- Saves and loads your plan as a plain file on your own computer.
+- Saves your plan with one click and reopens it automatically next time. You can
+  also export a copy to a file on your own computer, or import one back.
 
 ## What it assumes
 
@@ -66,9 +67,9 @@ anyone's real finances.)*
 ## What it doesn't do
 
 - It's not a hosted service, and it's not trying to be — you run it yourself (on your
-  own computer, or on a home server like a NAS), and your numbers stay in your
-  browser. There's no login, no cloud save, and no undo: if you close the tab without
-  saving, unsaved edits are gone.
+  own computer, or on a home server like a NAS), and your numbers stay on hardware
+  you own. There's no login, no cloud save, and no undo: if you close the tab without
+  clicking Save, unsaved edits are gone (your browser will ask first).
 - No side-by-side comparison of multiple scenarios at once — one plan at a time.
 - No rental property, long-term-care cost modeling, or life insurance.
 - No buying a new home after selling one, and no modeling more than one sale.
@@ -155,9 +156,12 @@ npm run build   # type-check and build a production bundle
 npm run lint    # run the linter
 ```
 
-Your data never leaves your machine: there's no database and nothing is uploaded
-anywhere. Use "Save to file" in the app to keep a copy of your plan, and "Load from
-file" to bring it back next time — closing the tab without saving loses your edits.
+Your data never leaves your machine. Clicking **Save** writes your plan to
+`data/plan.json` in the project folder (git ignores it), and the app loads it again
+automatically the next time it starts. There's only one saved plan, and each Save
+overwrites it. Use **Export to file** to keep extra copies or snapshots, and
+**Import from file** to bring one back. Closing the tab without saving loses your
+edits.
 
 ## Running it on a home server (TrueNAS, Docker)
 
@@ -165,29 +169,43 @@ If you'd rather open it from any device on your home network instead of running
 `npm run dev`, there's a ready-made Docker image. Every push to `main` builds and
 publishes it to `ghcr.io/syogod/retirementcalc:latest`.
 
-The server only hands your browser the app's files. All the math still runs in your
-browser, and your plan is never sent to the server or stored on it. Save/Load still
-reads and writes files on whatever computer you're using.
+All the math still runs in your browser. The server only does two things: it
+hands your browser the app's files, and it keeps your one saved plan as `plan.json`
+in a folder on the NAS. That means any device on your network opens the same plan.
+Export/Import still read and write files on whatever computer you're using.
 
 ### TrueNAS SCALE (24.10 or newer)
 
-1. Go to **Apps → Discover Apps**, open the **⋮** menu, and choose **Install via
+1. Create a dataset for the saved plan: **Datasets → Add Dataset**, e.g.
+   `apps/retirementcalc` on your pool, with the **Apps** dataset preset. That preset
+   makes it writable by TrueNAS's built-in `apps` user (568), which this app runs as.
+2. Go to **Apps → Discover Apps**, open the **⋮** menu, and choose **Install via
    YAML**.
-2. Name it `retirementcalc` and paste in the contents of [`compose.yaml`](./compose.yaml).
-3. Click **Save**, wait for it to show **Running**, then open
+3. Name it `retirementcalc` (lowercase letters, digits and hyphens only) and paste
+   in the contents of [`compose.yaml`](./compose.yaml). Change the volume line's
+   left side, `/mnt/tank/apps/retirementcalc`, to your dataset's real path.
+4. Click **Save**, wait for it to show **Running**, then open
    `http://<your-nas-ip>:30080`.
+
+If clicking Save shows "server error 500", the app can't write to that folder.
+Check that the path in the YAML is right, and that the `apps` user has write
+permission on the dataset (**Datasets → your dataset → Permissions**).
+
+The saved plan is a plain JSON file, so it's covered by your normal dataset
+snapshots and backups.
 
 To update to a newer version, open the app in TrueNAS and choose **Update** (or
 **Pull Image**, then restart it).
 
-There's no login, so keep this on your home network. Don't port-forward it to the
-internet. If you want to reach it while you're away, use a VPN back into your network.
+There's no login, so anyone who can reach it can see and overwrite your saved plan.
+Keep it on your home network and don't port-forward it to the internet. If you want
+to reach it while you're away, use a VPN back into your network.
 
 ### Any other Docker host
 
 ```bash
-docker compose up -d          # uses compose.yaml; then open http://localhost:30080
+docker compose up -d          # uses compose.yaml (edit the volume path first); then open http://localhost:30080
 # or build it yourself from source:
 docker build -t retirementcalc .
-docker run -d -p 30080:8080 retirementcalc
+docker run -d -p 30080:8080 -v "$PWD/data:/data" --user "$(id -u):$(id -g)" retirementcalc
 ```

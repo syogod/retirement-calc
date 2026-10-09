@@ -119,12 +119,40 @@ body {
   cursor: pointer;
 }
 
-.save-load-button:hover {
+.save-load-button:hover:not(:disabled) {
   background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
+}
+
+.save-load-button--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--card-bg);
+  font-weight: 600;
+}
+
+.save-load-button--primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text) 15%, var(--accent));
+}
+
+.save-load-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.save-status {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .save-load-error {
   flex-basis: 100%;
+}
+
+.load-error {
+  display: block;
+  white-space: normal;
+  font-size: 14px;
+  margin: 0 0 16px;
 }
 
 .section-divider {
